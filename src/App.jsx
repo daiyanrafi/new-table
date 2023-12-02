@@ -1,33 +1,55 @@
 import React from 'react';
 import { DetailsList, buildColumns } from '@fluentui/react/lib/DetailsList';
 
+const getStatusColor = (status) => {
+  switch (status.toLowerCase()) {
+    case 'running':
+      return 'green';
+    case 'pending':
+      return 'orange';
+    case 'off':
+      return 'red';
+    default:
+      return 'black';
+  }
+};
+
+const _onColumnClick = (event, column) => {
+  // Handle sorting logic here if needed
+  console.log(`Column clicked: ${column.key}`);
+};
+
 const App = () => {
   const items = [
-    { key: '1', CaseTitle: 'John Doe', caseNumber: 'Web Developer', status: 'Running' },
-    { key: '2', CaseTitle: 'Jane Smith', caseNumber: 'UI Designer', status: 'Pending' },
-    { key: '3', CaseTitle: 'Bob Johnson', caseNumber: 'Data Analyst', status: 'Off' },
-    { key: '4', CaseTitle: 'Bob Johnson', caseNumber: 'Data Analyst', status: 'Off' },
+    { key: '1', 'Case Title': 'John Doe', 'Case Number': 'Web Developer', status: 'Running', 'Created Date': new Date() },
+    { key: '2', 'Case Title': 'Jane Smith', 'Case Number': 'UI Designer', status: 'Pending', 'Created Date': new Date() },
+    { key: '3', 'Case Title': 'Bob Johnson', 'Case Number': 'Data Analyst', status: 'Off', 'Created Date': new Date() },
+    { key: '4', 'Case Title': 'Alice Brown', 'Case Number': 'Project Manager', status: 'Running', 'Created Date': new Date() },
   ];
 
-  const columns = buildColumns(items); // Pass the items array to buildColumns
+  // Add a new column definition for "Created Date"
+  const columns = buildColumns(items);
+  const createdDateColumn = columns.find(column => column.key === 'createdDate');
+  if (createdDateColumn) {
+    createdDateColumn.key = 'Created Date';
+    createdDateColumn.name = 'Created Date';
+  }
 
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case 'running':
-        return 'green';
-      case 'pending':
-        return 'orange';
-      case 'off':
-        return 'red';
+  const modifiedColumns = columns.map(column => {
+    switch (column.key) {
+      case 'CaseTitle':
+        return { ...column, key: 'Case Title', name: 'Case Title' };
+      case 'caseNumber':
+        return { ...column, key: 'Case Number', name: 'Case Number' };
       default:
-        return 'black';
+        return column;
     }
-  };
+  });
 
   return (
     <DetailsList
       items={items}
-      columns={columns}
+      columns={modifiedColumns}
       onRenderItemColumn={(item, index, column) => {
         const fieldContent = item[column.fieldName];
 
@@ -39,6 +61,8 @@ const App = () => {
                 {fieldContent}
               </span>
             );
+          case 'Created Date':
+            return <span>{fieldContent.toLocaleString()}</span>;
           default:
             return <span>{fieldContent}</span>;
         }
